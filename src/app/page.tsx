@@ -2,6 +2,7 @@
 
 import { client } from "@/helpers/story";
 import { useState } from "react";
+import { pinata } from "@/utils/config"
 
 import { toHex } from "viem";
 
@@ -13,6 +14,9 @@ const Home = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedFile(event.target?.files?.[0]);
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -41,7 +45,12 @@ const Home = () => {
     if (selectedFile && selectedAnimation !== null) {
       setLoading(true);
       setVideoUrl(null); // Reset video URL when a new submission is made
-
+      try {
+          const upload = await pinata.upload.file(selectedFile)
+          console.log(upload);
+        } catch (error) {
+          console.log(error);
+      }
       const formData = new FormData();
       formData.append("image", selectedFile);
       formData.append("number", selectedAnimation.toString());
@@ -52,7 +61,7 @@ const Home = () => {
       });
 
       // upload to story
-      await client.ipAsset.register({
+      const testUpload = await client.ipAsset.register({
         nftContract: "0x041B4F29183317Fd352AE57e331154b73F8a1D73", // your NFT contract address
         tokenId: "12", // your NFT token ID
         // https://docs.story.foundation/docs/ip-asset#adding-nft--ip-metadata-to-ip-asset
@@ -66,7 +75,7 @@ const Home = () => {
       });
 
       setLoading(false);
-      console.log("passsss")
+      
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
