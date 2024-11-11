@@ -1,10 +1,15 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { client } from "@/helpers/story";
+import { useState } from "react";
+
+import { toHex } from "viem";
 
 const Home = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedAnimation, setSelectedAnimation] = useState<number | null>(null);
+  const [selectedAnimation, setSelectedAnimation] = useState<number | null>(
+    null
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -38,12 +43,26 @@ const Home = () => {
       setVideoUrl(null); // Reset video URL when a new submission is made
 
       const formData = new FormData();
-      formData.append('image', selectedFile);
-      formData.append('number', selectedAnimation.toString());
+      formData.append("image", selectedFile);
+      formData.append("number", selectedAnimation.toString());
 
-      const response = await fetch('http://172.21.10.105:8070/uploadImage', {
-        method: 'POST',
+      const response = await fetch("http://172.21.10.105:8070/uploadImage", {
+        method: "POST",
         body: formData,
+      });
+
+      // upload to story
+      const response = await client.ipAsset.register({
+        nftContract: "0x041B4F29183317Fd352AE57e331154b73F8a1D73", // your NFT contract address
+        tokenId: "12", // your NFT token ID
+        // https://docs.story.foundation/docs/ip-asset#adding-nft--ip-metadata-to-ip-asset
+        ipMetadata: {
+          ipMetadataURI: "test-uri",
+          ipMetadataHash: toHex("test-metadata-hash", { size: 32 }),
+          nftMetadataHash: toHex("test-nft-metadata-hash", { size: 32 }),
+          nftMetadataURI: "test-nft-uri",
+        },
+        txOptions: { waitForTransaction: true },
       });
 
       setLoading(false);
@@ -73,7 +92,9 @@ const Home = () => {
       )}
       {!loading && !videoUrl && (
         <>
-          <h1 className="text-4xl font-bold mb-8">Let's Generate Your Special Video</h1>
+          <h1 className="text-4xl font-bold mb-8">
+            Let's Generate Your Special Video
+          </h1>
           <div className="mb-4">
             <h2>Upload your image</h2>
             <input
@@ -85,7 +106,11 @@ const Home = () => {
           </div>
           {previewUrl && (
             <div className="mb-4">
-              <img src={previewUrl} alt="Uploaded" className="w-64 h-64 object-cover" />
+              <img
+                src={previewUrl}
+                alt="Uploaded"
+                className="w-64 h-64 object-cover"
+              />
             </div>
           )}
           <div className="mb-4">
@@ -99,12 +124,20 @@ const Home = () => {
                   width="400"
                   height="200"
                   controls
-                  className={`border-4 ${selectedAnimation === animation ? 'border-blue-500' : 'border-transparent'}`}
+                  className={`border-4 ${
+                    selectedAnimation === animation
+                      ? "border-blue-500"
+                      : "border-transparent"
+                  }`}
                   onClick={() => handleAnimationSelect(animation)}
                 />
                 <button
                   onClick={() => handleAnimationSelect(animation)}
-                  className={`mt-2 px-4 py-2 ${selectedAnimation === animation ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'} rounded`}
+                  className={`mt-2 px-4 py-2 ${
+                    selectedAnimation === animation
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-300 text-black"
+                  } rounded`}
                 >
                   Select Animation {animation}
                 </button>
