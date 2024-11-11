@@ -1,9 +1,18 @@
-import { http } from "viem";
-import { Account, privateKeyToAccount, Address } from "viem/accounts";
+"use server";
+
+import { http, stringToBytes } from "viem";
+import { Account, privateKeyToAccount } from "viem/accounts";
 import { StoryClient, StoryConfig } from "@story-protocol/core-sdk";
 
-const privateKey: Address = `0x${process.env.WALLET_PRIVATE_KEY}`;
-const account: Account = privateKeyToAccount(privateKey);
+const privateKey = stringToBytes(
+  process.env.WALLET_PRIVATE_KEY?.startsWith("0x")
+    ? process.env.WALLET_PRIVATE_KEY
+    : (`0x${process.env.WALLET_PRIVATE_KEY}` as string)
+);
+
+const account: Account = privateKeyToAccount(
+  `0x${Buffer.from(privateKey).toString("hex")}`
+);
 
 const storyConfig: StoryConfig = {
   account: account, // the account object from above

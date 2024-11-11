@@ -52,7 +52,7 @@ const Home = () => {
       });
 
       // upload to story
-      const response = await client.ipAsset.register({
+      await client.ipAsset.register({
         nftContract: "0x041B4F29183317Fd352AE57e331154b73F8a1D73", // your NFT contract address
         tokenId: "12", // your NFT token ID
         // https://docs.story.foundation/docs/ip-asset#adding-nft--ip-metadata-to-ip-asset
