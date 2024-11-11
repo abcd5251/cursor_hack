@@ -66,7 +66,7 @@ const Home = () => {
       });
 
       setLoading(false);
-
+      console.log("passsss")
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);

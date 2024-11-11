@@ -1,3 +1,7 @@
+# AI Face Swaping with only one image ! 
+AI face-swapping and animated videos are currently trending, but there's no guarantee that people whose faces are used (or "memed") can receive any revenue - only the content posters can benefit. Therefore, we aim to use Story IP methods to ensure that people whose faces are used in these videos can receive specific revenue shares.
+
+## Execution
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
