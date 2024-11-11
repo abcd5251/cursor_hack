@@ -2,7 +2,7 @@
 
 import { client } from "@/helpers/story";
 import { useState } from "react";
-import { pinata } from "@/utils/config"
+import { pinata } from "@/utils/config";
 
 import { toHex } from "viem";
 
@@ -45,41 +45,48 @@ const Home = () => {
     if (selectedFile && selectedAnimation !== null) {
       setLoading(true);
       setVideoUrl(null); // Reset video URL when a new submission is made
+
       try {
-          const upload = await pinata.upload.file(selectedFile)
-          console.log(upload);
-        } catch (error) {
-          console.log(error);
-      }
-      const formData = new FormData();
-      formData.append("image", selectedFile);
-      formData.append("number", selectedAnimation.toString());
+        // upload data to ipfs
+        const upload = await pinata.upload.file(selectedFile);
 
-      const response = await fetch("https://test-upload-video.onrender.com/uploadImage", {
-        method: "POST",
-        body: formData,
-      });
+        const formData = new FormData();
+        formData.append("image", selectedFile);
+        formData.append("number", selectedAnimation.toString());
 
-      // upload to story
-      const testUpload = await client.ipAsset.register({
-        nftContract: "0x041B4F29183317Fd352AE57e331154b73F8a1D73", // your NFT contract address
-        tokenId: "12", // your NFT token ID
-        // https://docs.story.foundation/docs/ip-asset#adding-nft--ip-metadata-to-ip-asset
-        ipMetadata: {
-          ipMetadataURI: "test-uri",
-          ipMetadataHash: toHex("test-metadata-hash", { size: 32 }),
-          nftMetadataHash: toHex("test-nft-metadata-hash", { size: 32 }),
-          nftMetadataURI: "test-nft-uri",
-        },
-        txOptions: { waitForTransaction: true },
-      });
+        const response = await fetch(
+          "https://test-upload-video.onrender.com/uploadImage",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
 
-      setLoading(false);
-      
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        setVideoUrl(url);
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          setVideoUrl(url);
+        }
+
+        // create nft
+
+        // upload to story
+        const testUpload = await client.ipAsset.register({
+          nftContract: "0x041B4F29183317Fd352AE57e331154b73F8a1D73", // your NFT contract address
+          tokenId: "12", // your NFT token ID
+          // https://docs.story.foundation/docs/ip-asset#adding-nft--ip-metadata-to-ip-asset
+          ipMetadata: {
+            ipMetadataURI: `https://gateway.pinata.cloud/ipfs/${upload.IpfsHash}`,
+            ipMetadataHash: toHex(upload.IpfsHash, { size: 32 }),
+            nftMetadataHash: toHex("test-nft-metadata-hash", { size: 32 }),
+            nftMetadataURI: "test-nft-uri",
+          },
+          txOptions: { waitForTransaction: true },
+        });
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      } finally {
+        setLoading(false);
       }
     }
   };
