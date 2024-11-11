@@ -46,7 +46,7 @@ const Home = () => {
       formData.append("image", selectedFile);
       formData.append("number", selectedAnimation.toString());
 
-      const response = await fetch("http://172.21.10.105:8070/uploadImage", {
+      const response = await fetch("https://test-upload-video.onrender.com/uploadImage", {
         method: "POST",
         body: formData,
       });
